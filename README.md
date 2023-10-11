@@ -5,9 +5,9 @@ This work is focused on solving the incompressible Navier-Stokes equations :
 <p align="center"><img src="/imgs/NSequations.png" alt="drawing" width="300"/></p>
 
 
-The main idea consists of reinterpreting the stencil-based operations as purely algebraic kernels. A special treatment is proposed for the non-linear operators to convert them into a concatenation of linear operators. The details of this implementation model are described in my article [Oyarzun20017](https://www.tandfonline.com/doi/abs/10.1080/10618562.2017.1390084).
+The main idea consists of reinterpreting the stencil-based operations as purely algebraic kernels. A special treatment is proposed for the non-linear operators to convert them into a concatenation of linear operators. The details of this implementation model are described in my article [Oyarzun2017](https://www.tandfonline.com/doi/abs/10.1080/10618562.2017.1390084).
 
-The implementation structure is based on set of abstract classes that provides a way of implementing the computing node, parallel topology, and the core algebraic componenents of a CFD simulation.
+The implementation structure is based on set of abstract classes that provides a way of developing the computing node, parallel topology, and the core algebraic componenents of a CFD simulation.
 
 - Parallel topology: describes how the data is distributed among the different computing nodes, and implements the communication scheme required to maintain its consistency during the simulation.
 - Nodes: specifies the computer architecture in which the code will run, this includes details about how many CPU-cores, GPUs, FPGAs can be used on each on each node.
@@ -15,7 +15,7 @@ The implementation structure is based on set of abstract classes that provides a
 - Vector operations: details the basic operations needed during the CFD simulation, mainly: axpy and dot.
 - Timer: different architectures might implement the performance timers in different ways.
 
-The linear solver and the CFD integrator are built as templates of the abstract classes, making them independent of the implementation details and improving its reusability on different computer architectures.
+The linear solver and the CFD integrator are built as templates of the abstract classes, making them independent of the implementation details and improving its reusability on different computer architectures. This two classes are implemented once, unless the simulation demands a different linear solver or specific integration scheme.
 
 <p align="center"><img src="/imgs/structure.png" alt="drawing" width="300"/></p>
 
