@@ -6,12 +6,10 @@
 #include<mpi.h>
 #include "GIP_LinearSolver.h"
 #include "../BasicInterfaces/GIP_Topo.h"
-#include "../Specifications/Multicore/GIP_ArchCPU.h"
-
 
 using namespace std;
 
-template<class Matrix,class Vector,class Node> class GIP_DNS{
+template<class Matrix,class Vector,class Node,class NonLinear> class GIP_DNS{
 
 
     public:
@@ -73,7 +71,8 @@ template<class Matrix,class Vector,class Node> class GIP_DNS{
         // Topologies
         GIP_Topo topoCols;
         GIP_Topo topoFaces;
-
+    
+        NonLinear noLin;
 
 
         // Parameters
@@ -83,9 +82,9 @@ template<class Matrix,class Vector,class Node> class GIP_DNS{
         double rho;
         double dt;
         double time;
-	int    maxIt;
+        int    maxIt;
         int    it;
-	
+
         // Private methods
         void uploadTopos();  
         void uploadConvDiff(); 
@@ -100,15 +99,14 @@ template<class Matrix,class Vector,class Node> class GIP_DNS{
         void MassFluxes(); 
         void CFLCondition(); 
 
-        void calculateCFL(); 
 };
 
-template<class Matrix,class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::integrate()
+template<class Matrix,class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::integrate()
 {
 
-    calculateCFL();
-    sigma=1.0/dt;
+   dt=noLin.getCFL(&topoCols,&u,&v,&w,&dxs,&temp,gamma,rho);
+   sigma=1.0/dt;
     for(it=0;it<maxIt;it++)
     {
         PredictorVelocity();
@@ -121,8 +119,8 @@ void GIP_DNS<Matrix,Vector,Node>::integrate()
 }
 
 
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::setUp() 
+template<class Matrix, class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::setUp() 
 {
     uploadTopos();
     uploadConvDiff();
@@ -130,48 +128,48 @@ void GIP_DNS<Matrix,Vector,Node>::setUp()
     uploadGradients();
     uploadMassCorrection();
     uploadCFL();
-    calculateCFL();
+
 }
 
-template<class Matrix,class Vector,class Node> 
-GIP_DNS<Matrix,Vector,Node>::GIP_DNS(char* _name):nodo(1,4,4),topoCols(),topoFaces(),Ec(),D(),C(),L(),Lb(),
+template<class Matrix,class Vector,class Node,class NonLinear> 
+GIP_DNS<Matrix,Vector,Node,NonLinear>::GIP_DNS(char* _name):nodo(1,4,4),noLin(),topoCols(),topoFaces(),Ec(),D(),C(),L(),Lb(),
     Mx(),My(),Mz(),Gx(),Gy(),Gz(),SFx(),SFy(),SFz(),SO(),Mres(),dxs(),u(),v(),w(),u0(),v0(),w0(),ax(),ay(),
     az(),ax0(),ay0(),az0(),rhs(),p(),p0(),gpx(),gpy(),gpz(),cg(),temp(),temp2(){
 
-        maxIt=100;
+        maxIt=10;
         rho=1.0;
         sigma=1.0/dt;
         dt=1e-3;
         Re=1.0e3;
         gamma=1.0/Re;
         time=0.0;
-	sprintf(name,"%s",_name);
+        sprintf(name,"%s",_name);
     }
 
 
 
 
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::uploadConvDiff() 
+template<class Matrix, class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadConvDiff() 
 {
     int rank,nz;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     MPI_Comm_size(MPI_COMM_WORLD,&nz);
 
     char Dname[100];
-    sprintf(Dname,"InputFiles/Operators/CD/%s/%s_%dp/D%s_%dp-%d.csr",name,name,nz,name,nz,rank);
+    sprintf(Dname,"../InputFiles/Operators/CD/%s/%s_%dp/D%s_%dp-%d.csr",name,name,nz,name,nz,rank);
     D.postConstruct(&Dname[0],&topoCols,&nodo);
     C.postConstruct(&Dname[0],&topoCols,&nodo);
 
     char Ecname[100];
-    sprintf(Ecname,"InputFiles/Operators/CD/%s/%s_%dp/Ec%s_%dp-%d.csr",name,name,nz,name,nz,rank);
+    sprintf(Ecname,"../InputFiles/Operators/CD/%s/%s_%dp/Ec%s_%dp-%d.csr",name,name,nz,name,nz,rank);
     Ec.postConstruct(&Ecname[0],&topoFaces,&nodo);
 
 }
 
 
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::uploadPoisson() 
+template<class Matrix, class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadPoisson() 
 {
     int rank,nz;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -208,8 +206,8 @@ void GIP_DNS<Matrix,Vector,Node>::uploadPoisson()
 }
 
 
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::uploadGradients() 
+template<class Matrix, class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadGradients() 
 {
     int rank,nz;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -231,8 +229,8 @@ void GIP_DNS<Matrix,Vector,Node>::uploadGradients()
 }
 
 
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::uploadMassCorrection() 
+template<class Matrix, class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadMassCorrection() 
 {
     int rank,nz;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -256,8 +254,8 @@ void GIP_DNS<Matrix,Vector,Node>::uploadMassCorrection()
 
 }
 
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::uploadCFL()  
+template<class Matrix, class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadCFL()  
 {
     int rank,nz;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -268,8 +266,8 @@ void GIP_DNS<Matrix,Vector,Node>::uploadCFL()
     Mres.postConstruct(&Mresname[0],&topoCols,&nodo);
 
 }
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::uploadTopos() 
+template<class Matrix, class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadTopos() 
 {
     int rank,nz;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -279,10 +277,11 @@ void GIP_DNS<Matrix,Vector,Node>::uploadTopos()
     char Vecname[100];
     sprintf(Tname,"InputFiles/Topos/%s/%s_%dp/topoCols%s_%dp-%d.topo",name,name,nz,name,nz,rank);
     topoCols.postConstruct(&Tname[0]);
+
     sprintf(Tname,"InputFiles/Topos/%s/%s_%dp/topoFaces%s_%dp-%d.topo",name,name,nz,name,nz,rank);
     topoFaces.postConstruct(&Tname[0]);
 
-    //nodo.setUp();
+    nodo.setUp();
 
     p.postConstruct(&topoCols,&nodo);
     p0.postConstruct(&topoCols,&nodo);
@@ -316,30 +315,29 @@ void GIP_DNS<Matrix,Vector,Node>::uploadTopos()
     sprintf(Vecname,"InputFiles/Scalarfields/%s/%s_%dp/dxs%s_%dp-%d.vec",name,name,nz,name,nz,rank);
     dxs.postConstruct(Vecname,&topoCols,&nodo);
 
-    ax=0.0;
-    ay=0.0;
-    az=0.0;
-    ax0=0.0;
-    ay0=0.0;
-    az0=0.0;
-    gpx=0.0;
-    gpy=0.0;
-    gpz=0.0;
-    p=0.0;
-    p0=0.0;
-    mf=0.0; 
-    rhs=0.0;
-    temp=0.0;
-    temp2=0.0;
+    ax=0;
+    ay=0;
+    az=0;
+    ax0=0;
+    ay0=0;
+    az0=0;
+    gpx=0;
+    gpy=0;
+    gpz=0;
+    p=0;
+    p0=0;
+    mf=0; 
+    rhs=0;
+    temp=0;
+    temp2=0;
    
     cout.setf(ios::scientific,ios::floatfield);
 
+   }
 
-}
 
-
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::PredictorVelocity()
+template<class Matrix, class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::PredictorVelocity()
 {
 
     Ec.spmv(&mf,&C);  
@@ -369,8 +367,8 @@ void GIP_DNS<Matrix,Vector,Node>::PredictorVelocity()
     az.copyTo(&az0,_INNER_);
 
 }
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::PoissonEquation() 
+template<class Matrix, class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::PoissonEquation() 
 {
     Mx.spmv(&u,&rhs);
     My.spmv(&v,&rhs,1.0,1.0);
@@ -385,8 +383,8 @@ void GIP_DNS<Matrix,Vector,Node>::PoissonEquation()
 
 }
 
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::VelocityCorrection() 
+template<class Matrix, class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::VelocityCorrection() 
 {
     Gx.spmv(&p,&gpx);
     Gy.spmv(&p,&gpy);
@@ -408,36 +406,35 @@ void GIP_DNS<Matrix,Vector,Node>::VelocityCorrection()
    
 }
 
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::MassFluxes() 
+template<class Matrix, class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::MassFluxes() 
 {
-	double fact1=-1.0/sigma;
-	double fact2=1.0/sigma;
+    double fact1=-1.0/sigma;
+    double fact2=1.0/sigma;
 
-	   SO.spmv(&p,&mf,fact1,0.0);
-	   SFx.spmv(&gpx,&mf,fact2,1.0);
-	   SFy.spmv(&gpy,&mf,fact2,1.0);
-	   SFz.spmv(&gpz,&mf,fact2,1.0);
-	    SFx.spmv(&u,&mf,rho,1.0);
-	    SFy.spmv(&v,&mf,rho,1.0);
-	    SFz.spmv(&w,&mf,rho,1.0);
+    SO.spmv(&p,&mf,fact1,0.0);
+    SFx.spmv(&gpx,&mf,fact2,1.0);
+    SFy.spmv(&gpy,&mf,fact2,1.0);
+    SFz.spmv(&gpz,&mf,fact2,1.0);
+    SFx.spmv(&u,&mf,rho,1.0);
+    SFy.spmv(&v,&mf,rho,1.0);
+    SFz.spmv(&w,&mf,rho,1.0);
 }
 
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::CFLCondition() 
+template<class Matrix, class Vector,class Node,class NonLinear>
+void GIP_DNS<Matrix,Vector,Node,NonLinear>::CFLCondition() 
 {
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 
     Mres.spmv(&mf,&temp);
-    double massdot=temp.dot(&temp,&temp,_OWNED_);
-    double massres=temp.norm(&temp2,_OWNED_);
+    double massres=temp.norm(&temp2,_INNER_);
   
     time+=dt; 
     if(rank==0) 
       cout<<"time "<<time<<" [dt::"<<dt<<"] massr "<<massres<<" ite "<<it+1<<endl;
     
-    calculateCFL();
+    dt=noLin.getCFL(&topoCols,&u,&v,&w,&dxs,&temp,gamma,rho);
 
     sigma=1.0/dt;
 
@@ -447,57 +444,5 @@ void GIP_DNS<Matrix,Vector,Node>::CFLCondition()
 
 }
 
-template<class Matrix, class Vector,class Node>
-void GIP_DNS<Matrix,Vector,Node>::calculateCFL() 
-{
 
-  //  dt=1e-3;
-    dt=1e20;
-    double convCoef=0.25;
-    double difCoef=0.2;
-    double ut,vt,wt,dx;
-    double normit=0.0;
-    double* uptr,*vptr,*wptr,*dxsptr;
-    double aux;
-    double limite=1e-17;
-    uptr=u.getHostPtr();
-    vptr=v.getHostPtr();
-    wptr=w.getHostPtr();
-    dxsptr=dxs.getHostPtr();
-
-    for(int i=0;i<topoCols.getInnerSize();i++)
-    {
-        ut=uptr[i];
-        vt=vptr[i];
-        wt=wptr[i];
-        dx=dxsptr[i];
-        if(fabs(ut)>fabs(vt))
-            normit=fabs(ut);
-        else
-            normit=fabs(vt);
-
-        if(normit<fabs(wt))
-            normit=fabs(wt);
-        if(!(dx/normit < 1e-17))
-        {
-            if(dt>convCoef*dx/(normit))
-                dt= convCoef*dx/(normit);
-        }
-        if(!(dx*dx*rho/gamma  < 1e-17))
-        {
-            if(dt>0.2*dx*dx*rho/gamma)
-                dt=0.2*dx*dx*rho/gamma;
-        }
-
-    }
-    double final = 0.0;
-    MPI_Allreduce(&dt,&final,1,MPI_DOUBLE,MPI_MIN,MPI_COMM_WORLD);
-
-
-    if(0.8*final>1e-1)
-        dt=1e-1;
-    else
-        dt=0.8*final;
-
-}
 #endif

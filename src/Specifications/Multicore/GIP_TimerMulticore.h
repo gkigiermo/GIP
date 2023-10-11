@@ -1,8 +1,10 @@
 #ifndef _gip_timermulticore_
 #define _gip_timermulticore_
 #include <stdlib.h>
-#include <sys/time.h>
-#include <sys/times.h>
+
+//#include <sys/time.h>
+//#include <sys/times.h>
+
 #include "../../AbstractInterfaces/GIP_Timer.h"
 
 

@@ -1,6 +1,6 @@
 //#cabecera de las funciones de GPU 
-#include "/usr/local/cuda-5.5/include/cuda.h"
-#include "/usr/local/cuda-5.5/include/cuda_runtime.h"
+#include "cuda.h"
+#include "cuda_runtime.h"
 
 
 

@@ -15,15 +15,15 @@ GIP_Vector::GIP_Vector(GIP_Topo* topo,GIP_Arch* _node)
 }
 GIP_Vector::~GIP_Vector()
 {
-    if(vec!=NULL)
+/*    if(vec!=NULL)
         delete vec;
-
+*/
 }
 
 void GIP_Vector::FillRandom()
 {
     for(int i=0;i<size;i++)
-       vec[i]=cos(i)+cos(10*i)+cos(100*i)+cos(1000*i);
+       vec[i]=cos(1.0*i)+cos(10.0*i)+cos(100.0*i)+cos(1000.0*i);
 }
 void GIP_Vector::PrintRows(int n)
 {
@@ -46,26 +46,26 @@ double* GIP_Vector::getHostPtr()
 
 void GIP_Vector::printPlainFile(char * opname)
 {
-	int rank;
-	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-	char filename[100];
-	sprintf(filename,"%s-%d.vec",opname,rank);
-	FILE *fp;
-	double val;
-	fp= fopen(filename,"w");
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+    char filename[100];
+    sprintf(filename,"%s-%d.vec",opname,rank);
+    FILE *fp;
+    double val;
+    fp= fopen(filename,"w");
 
-	for(int i=0;i<1;i++)
-		fprintf(fp," %d",size);
-	fprintf(fp," \n");
+    for(int i=0;i<1;i++)
+        fprintf(fp," %d ",size);
+    fprintf(fp," \n");
 
-	for(int i=0;i<size;i++)
-	{
-		val=vec[i];
-		fprintf(fp,"%d %e \n",i,val);
-	}
-	fprintf(fp," \n");
+    for(int i=0;i<size;i++)
+    {
+        val=vec[i];
+        fprintf(fp,"%d %e \n",i,val);
+    }
+    fprintf(fp," \n");
 
-	fclose(fp);
+    fclose(fp);
 
 
 

@@ -25,7 +25,7 @@ class GIP_VectorCuda : public GIP_Vector{
         void TransferToDevice(enum RUN_DOMAIN);
         void TransferToHost(enum RUN_DOMAIN);
 
-        void hola(){cout<<"hola"<<endl;};
+        double* getHostPtr();
         void operator=(GIP_VectorCuda&);
         void operator=(int);
     protected:

@@ -28,15 +28,15 @@ void GIP_VectorMulticore::postConstruct(char* sfd_name,GIP_Topo* topo,GIP_Arch* 
     fp= fopen(sfd_name,"rb");
     if (fp == NULL) {
     
-	cout<<" Error opening scalarfield file "<<sfd_name<<endl;
-	exit(0);
-     }
+        cout<<" Error opening scalarfield file "<<sfd_name<<endl;
+        exit(0);
+    }
     int tam=0;
 
     fread(&tam,sizeof(int),1,fp);
   
     fread(vec,sizeof(double),tam,fp);
-	
+    
 /*
     for(int i=0;i<1;i++)
         fscanf(fp," %d",&sizes[0]);
@@ -100,6 +100,8 @@ void GIP_VectorMulticore::axpy(GIP_Vector* x,double alpha,double beta,enum RUN_D
 }
 double GIP_VectorMulticore::dot(GIP_Vector* x, GIP_Vector* temp,enum RUN_DOMAIN rdom)
 {
+    temp = NULL; //UNUSED
+
     int sz=MPI_Comm_size(MPI_COMM_WORLD,&sz);
     double tdot=0.0,dot=0.0;
 
@@ -135,6 +137,8 @@ double GIP_VectorMulticore::dot(GIP_Vector* x, GIP_Vector* temp,enum RUN_DOMAIN 
 
 double GIP_VectorMulticore::norm(GIP_Vector* temp,enum RUN_DOMAIN rdom)
 {
+    temp = NULL; //UNUSED
+
     int sz=MPI_Comm_size(MPI_COMM_WORLD,&sz);
     double norm=0.0,tnorm=0.0;
 
@@ -221,5 +225,5 @@ void GIP_VectorMulticore::update()
 void GIP_VectorMulticore::FillRandom()
 {
     for(int i=0;i<size;i++)
-       vec[i]=cos(i)+cos(10*i)+cos(100*i)+cos(1000*i);
+       vec[i]=cos(1.0*i)+cos(10.0*i)+cos(100.0*i)+cos(1000.0*i);
 }

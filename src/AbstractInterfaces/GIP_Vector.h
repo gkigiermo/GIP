@@ -27,18 +27,18 @@ class GIP_Vector{
         void operator=(GIP_Vector&);
   
       
-        virtual double* getDevicePtr(){}; 
+        virtual double* getDevicePtr(){return NULL;}; 
         double* getHostPtr();
         int getSize(){return size;};                
         virtual void axpy(GIP_Vector*, double){};
         virtual void axpy(GIP_Vector*, double,double){};
-        virtual double dot(GIP_Vector*,GIP_Vector*){};
+        virtual double dot(GIP_Vector*,GIP_Vector*){return 0;};
         virtual void copyTo(GIP_Vector*){};
         virtual void update(){};
 
         virtual void FillRandom(); 
         void PrintRows(int);         
-	    void printPlainFile(char* ); 
+        void printPlainFile(char* ); 
         virtual void TransferToDevice(enum RUN_DOMAIN){}; 
         virtual void TransferToHost(enum RUN_DOMAIN){}; 
 
@@ -54,3 +54,15 @@ class GIP_Vector{
 };
 
 #endif
+
+//constructures
+// - defecto
+// - copia
+// post construct
+// operadores =
+// gets sets
+// otros
+// operaciones 
+// mariconadas
+//desctructores
+

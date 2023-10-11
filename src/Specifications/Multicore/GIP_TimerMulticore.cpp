@@ -1,5 +1,7 @@
 #include "GIP_TimerMulticore.h"
 
+#include <omp.h>
+
 GIP_TimerMulticore::GIP_TimerMulticore() : GIP_Timer() {}
 
 void GIP_TimerMulticore::startChannel()
@@ -17,19 +19,15 @@ void GIP_TimerMulticore::stopAllChannels()
 {
     end=getTime();
 
-    tm_l=(end-begin); 
+    tm_l=(float)(end-begin); 
     sum_l=sum_l+tm_l;
-    MPI_Allreduce(&tm_l,&tm_g,1,MPI_FLOAT,MPI_MAX,MPI_COMM_WORLD);	
+    MPI_Allreduce(&tm_l,&tm_g,1,MPI_FLOAT,MPI_MAX,MPI_COMM_WORLD);    
     sum_g=sum_g+tm_g;
     cont=cont+1;
 }
 
 double GIP_TimerMulticore::getTime()
 {
-    struct timeval now;
-
-    if (gettimeofday(&now, (struct timezone *) 0)) exit(1);
-
-    return(((double) now.tv_sec + (double) now.tv_usec / 1000000) +1.0);
+    return omp_get_wtime();
 }
 

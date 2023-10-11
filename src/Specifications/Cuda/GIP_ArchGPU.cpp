@@ -16,7 +16,7 @@ void GIP_ArchGPU::postConstruct(int _numcpus,int _numcores, int _numdevs)
         num_cores=_numcores;
         num_devs=_numdevs;
    
-        devId=rank%_numcpus; // De momento se asume que el numero de gpus es igual la numero de cpus
+        devId=rank;//rank%_numcpus; // De momento se asume que el numero de gpus es igual la numero de cpus
 
 }
 

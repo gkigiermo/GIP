@@ -21,7 +21,7 @@
 #include <omp.h>
 
 
-using namespace std;
+//using namespace std;
 
 class GIP_ArchCPU: public GIP_Arch{
 

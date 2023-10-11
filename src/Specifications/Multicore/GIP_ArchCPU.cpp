@@ -21,14 +21,14 @@ void GIP_ArchCPU::setUp()
 {
     omp_set_num_threads(num_cores);
 
-    int cores=num_cores*num_cpus; //12;
+    //int cores=num_cores*num_cpus; //12;
     int nthreads=num_cores;//6;
     omp_set_num_threads(nthreads);
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+
+#ifdef AFFINITY
     int cpu_id=rank%num_cpus;
-
-
 #pragma omp parallel default(shared) num_threads(nthreads)
     {  
 
@@ -49,9 +49,10 @@ void GIP_ArchCPU::setUp()
                 if(sched_setaffinity(0, sizeof(cpu_set_t), &mask_SYSTEM))
                 {
                     cout<<"TrySetAffinity: sched_setaffinity fail!"<<endl;
-                }	
+                }    
             }
 #pragma omp barrier 
         }
     }
+#endif
 }

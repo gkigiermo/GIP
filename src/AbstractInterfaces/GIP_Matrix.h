@@ -4,7 +4,6 @@
 #include<stdlib.h>
 #include<iostream>
 #include"GIP_Vector.h"
-//#include"GIP_VectorCuda.h"
 #include"GIP_Arch.h"
 
 using namespace std;
@@ -28,7 +27,7 @@ class GIP_Matrix {
         virtual void operator=(GIP_Matrix){};
 
 
-        virtual double* getCsrValADevice(){};
+        virtual double* getCsrValADevice(){return NULL;};
         int getNumNnz(){return nnz;}; //temporal solo para pruebas
         int getNumRows(){return num_rows;}; //temporal solo para pruebas
         int getNumCols(){return num_cols;}; //temporal solo para pruebas

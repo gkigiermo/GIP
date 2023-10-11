@@ -1,3 +1,5 @@
 #include "GIP_MatrixMulticore.h"
 #include "GIP_VectorMulticore.h"
 #include "GIP_TimerMulticore.h"
+#include "GIP_NonLinearMulticore.h"
+#include "GIP_ArchCPU.h"

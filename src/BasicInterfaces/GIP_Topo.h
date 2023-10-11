@@ -5,7 +5,7 @@
 #include<iostream>
 #include<mpi.h>
 
-/* Order of the elements within the topology    
+/* Orden de los elementos en la clase Topo     
       _____________________________
      |       |          | INTERIOR |
      |       |  INNER   |__________|

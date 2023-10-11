@@ -18,7 +18,7 @@ void GIP_MatrixCuda::postConstruct(char *matrix_name,GIP_Topo* _topo,GIP_Arch* _
 	MPI_Comm_size(MPI_COMM_WORLD,&nz);
 	FILE *fp;
 
-	fp= fopen(matrix_name,"r");
+	fp= fopen(matrix_name,"rb");
 
 	int sizes[5];
 

@@ -49,8 +49,8 @@ void GIP_LinearSolver<Matrix,Vector>::solve(Vector* db, Vector* dx, Vector* dx0)
     int sz,rank;
     MPI_Comm_size(MPI_COMM_WORLD,&sz);
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-    double tres,trho,tdenom,denom;
-    double alpha, beta, r0, r1, rt,dnt,dn,dnt2;
+
+    double alpha, beta, r0, r1,dn;
 
     Vector dp(myTopo,myNode);
     dx0->update();

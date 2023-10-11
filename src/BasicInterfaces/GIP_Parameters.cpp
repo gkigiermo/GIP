@@ -1,17 +1,17 @@
 #include "GIP_Parameters.h"
 
 GIP_Parameters::GIP_Parameters(){
-	name="";
+    name="";
 }
 
 GIP_Parameters::GIP_Parameters(const GIP_Parameters& o) : bools(o.bools), integers(o.integers), doubles(o.doubles), strings(o.strings),name(o.name){}
-	
+    
 const GIP_Parameters& GIP_Parameters::operator=(const GIP_Parameters& o){
-	bools=o.bools;
+    bools=o.bools;
     integers=o.integers;
     doubles=o.doubles; 
-	strings=o.strings;
-	name=o.name;	
+    strings=o.strings;
+    name=o.name;    
     return *this;
 }
 
@@ -49,19 +49,19 @@ void GIP_Parameters::setString(const string& key,const string& value){
 }
 
 ostream &operator<<(ostream & qout, const GIP_Parameters& p){
-	qout<<"   PARAMETERS START "<<p.name<<endl<<endl;
-	qout<<"    -Booleans:"<<endl;
-	for(map<string,bool>::const_iterator i=p.bools.begin(); i!=p.bools.end(); ++i)
+    qout<<"   INICI PARAMETERS "<<p.name<<endl<<endl;
+    qout<<"    -Booleans:"<<endl;
+    for(map<string,bool>::const_iterator i=p.bools.begin(); i!=p.bools.end(); ++i)
         qout<<"     "<<i->first<<": "<<i->second<<endl;
     qout<<endl<<"    -Integers:"<<endl;
     for(map<string,int>::const_iterator i=p.integers.begin(); i!=p.integers.end(); ++i)
-        qout<<"     "<<i->first<<": "<<i->second<<endl;                                         
+        qout<<"     "<<i->first<<": "<<i->second<<endl;                                          //aqui no podrÃ© ficar els glovals ja que no els tinc
     qout<<endl<<"    -Doubles:"<<endl;
     for(map<string,double>::const_iterator i=p.doubles.begin(); i!=p.doubles.end(); ++i)
+        qout<<"     "<<i->first<<": "<<i->second<<endl; //aqui no podrÃ© ficar els glovals ja que no els tinc
+    qout<<endl<<"    -Strings:"<<endl;
+    for(map<string,string>::const_iterator i=p.strings.begin(); i!=p.strings.end(); ++i)
         qout<<"     "<<i->first<<": "<<i->second<<endl; 
-	qout<<endl<<"    -Strings:"<<endl;
-	for(map<string,string>::const_iterator i=p.strings.begin(); i!=p.strings.end(); ++i)
-        qout<<"     "<<i->first<<": "<<i->second<<endl; 
-	qout<<endl<<"   PARAMETERS END"<<endl;
+    qout<<endl<<"   FI PARAMETERS"<<endl;
     return qout;
 }

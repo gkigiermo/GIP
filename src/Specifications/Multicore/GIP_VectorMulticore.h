@@ -20,7 +20,7 @@ class GIP_VectorMulticore : public GIP_Vector{
         double norm(GIP_Vector*,enum RUN_DOMAIN);
         void copyTo(GIP_Vector*, enum RUN_DOMAIN);
         void  update();
-        double* getDevicePtr(){};
+        double* getDevicePtr(){return NULL;};
         void FillRandom();
         void operator=(GIP_VectorMulticore&);
         void operator=(int);

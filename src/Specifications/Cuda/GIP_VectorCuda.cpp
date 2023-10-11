@@ -45,7 +45,7 @@ void GIP_VectorCuda::postConstruct(char * sfd_name,GIP_Topo* topo,GIP_Arch* _nod
     MPI_Comm_size(MPI_COMM_WORLD,&nz);
     FILE *fp;
 
-    fp= fopen(sfd_name,"r");
+    fp= fopen(sfd_name,"rb");
 
     int sizes[1];
 /*
@@ -61,6 +61,8 @@ void GIP_VectorCuda::postConstruct(char * sfd_name,GIP_Topo* topo,GIP_Arch* _nod
 	
     fclose(fp);
  
+    GIP_cudaMemcpyDToGpu(vec,dvec,myTopo->getAllSize());
+                 
 }
 
 void GIP_VectorCuda::TransferToDevice(enum RUN_DOMAIN rdom)
@@ -259,3 +261,10 @@ void GIP_VectorCuda::FillRandom()
 
     GIP_cudaMemcpyDToGpu(vec,dvec,size);
 }
+
+double* GIP_VectorCuda::getHostPtr()
+{
+//    GIP_cudaMemcpyDToCpu(vec,dvec,size);
+    return vec;
+}
+

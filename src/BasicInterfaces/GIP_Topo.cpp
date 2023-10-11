@@ -2,73 +2,67 @@
 
 void GIP_Topo::postConstruct(char* filename)
 {
-	int rank,nz;
-	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-	MPI_Comm_size(MPI_COMM_WORLD,&nz);
+    int rank,nz;
+    MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+    MPI_Comm_size(MPI_COMM_WORLD,&nz);
 
+    //    char filename[100];
+    //    sprintf(filename,"topos/%s/%s_%dp/%s_%dp-%d.topo",matname,matname,nz,matname,nz,rank);
+    FILE *fp;
+    fp= fopen(filename,"r");
 
-//	char filename[100];
-//	sprintf(filename,"topos/%s/%s_%dp/%s_%dp-%d.topo",matname,matname,nz,matname,nz,rank);
-	FILE *fp;
-	fp= fopen(filename,"r");
-	
-	int sizes[9];
-	for(int i=0;i<9;i++)
-	    fscanf(fp," %d",&sizes[i]);
-	fscanf(fp," \n");
-	
-	
-        send_size=sizes[0];	
-	recv_size=sizes[1];
-	cols_size=sizes[2];
-	ownedsize=sizes[3];
-	allsize=sizes[4];
-        interiors=sizes[5];
-        interfaces=sizes[6];
-        boundaries=sizes[7];
-        halos=sizes[8];
-        innersize= interiors+interfaces;
+    int sizes[9];
+    for(int i=0;i<9;i++)
+        fscanf(fp," %d",&sizes[i]);
+    fscanf(fp," \n");
 
-        send_indx= new int[send_size];
-        send_buffer= new double[send_size];
-        recv_indx= new int[recv_size];
-        recv_buffer= new double[recv_size];
-        send_row= new int[cols_size];
-        recv_row= new int[cols_size];
-        //vec=(double*)malloc(sizeof(double)*size);
-	//send_indx=(int*)malloc(sizeof(int)*send_size);
-	//send_buffer=(double*)malloc(sizeof(double)*send_size);
-	//recv_indx=(int*)malloc(sizeof(int)*recv_size);
-	//recv_buffer=(double*)malloc(sizeof(double)*recv_size);
-	//send_row=(int*)malloc(sizeof(int)*cols_size);
-	//recv_row=(int*)malloc(sizeof(int)*cols_size);
-	
-	for(int i=0;i<send_size;i++)
-		fscanf(fp," %d",&send_indx[i]);
-	fscanf(fp," \n");
+    send_size=sizes[0];    
+    recv_size=sizes[1];
+    cols_size=sizes[2];
+    ownedsize=sizes[3];
+    allsize=sizes[4];
+    interiors=sizes[5];
+    interfaces=sizes[6];
+    boundaries=sizes[7];
+    halos=sizes[8];
+    innersize= interiors+interfaces;
 
-	for(int i=0;i<cols_size;i++)
-		fscanf(fp," %d",&send_row[i]);
-	fscanf(fp," \n");
-	
-	for(int i=0;i<recv_size;i++)
-		fscanf(fp," %d",&recv_indx[i]);
-	fscanf(fp," \n");
+    send_indx= new int[send_size];
+    send_buffer= new double[send_size];
+    recv_indx= new int[recv_size];
+    recv_buffer= new double[recv_size];
+    send_row= new int[cols_size];
+    recv_row= new int[cols_size];
+    //vec=(double*)malloc(sizeof(double)*size);
+    //send_indx=(int*)malloc(sizeof(int)*send_size);
+    //send_buffer=(double*)malloc(sizeof(double)*send_size);
+    //recv_indx=(int*)malloc(sizeof(int)*recv_size);
+    //recv_buffer=(double*)malloc(sizeof(double)*recv_size);
+    //send_row=(int*)malloc(sizeof(int)*cols_size);
+    //recv_row=(int*)malloc(sizeof(int)*cols_size);
 
-	for(int i=0;i<cols_size;i++)
-		fscanf(fp," %d",&recv_row[i]);
-	fscanf(fp," \n");
+    for(int i=0;i<send_size;i++)
+        fscanf(fp," %d",&send_indx[i]);
+    fscanf(fp," \n");
 
-	fclose(fp);
+    for(int i=0;i<cols_size;i++)
+        fscanf(fp," %d",&send_row[i]);
+    fscanf(fp," \n");
 
+    for(int i=0;i<recv_size;i++)
+        fscanf(fp," %d",&recv_indx[i]);
+    fscanf(fp," \n");
 
-        threads=128;
-        blocks_all=(allsize+(threads-1))/threads;
-        blocks_owned=(ownedsize+(threads-1))/threads;
-        blocks_inner=(innersize+(threads-1))/threads;
+    for(int i=0;i<cols_size;i++)
+        fscanf(fp," %d",&recv_row[i]);
+    fscanf(fp," \n");
 
+    fclose(fp);
 
-
+    threads=128;
+    blocks_all=(allsize+(threads-1))/threads;
+    blocks_owned=(ownedsize+(threads-1))/threads;
+    blocks_inner=(innersize+(threads-1))/threads;
 }
 
 int GIP_Topo::getAllSize()
@@ -139,8 +133,8 @@ void GIP_Topo::unpack(double* &distvect)
 void GIP_Topo::sendrecv()
 {
 
-    MPI_Request rqs[cols_size-1]; // request send
-    MPI_Request rqr[cols_size-1]; // request received 
+    MPI_Request *rqs = new MPI_Request[cols_size-1]; // request send
+    MPI_Request *rqr = new MPI_Request[cols_size-1]; // request received 
 
     int dim_send,dim_recv;
     for(int i=0;i<cols_size-1;i++)
@@ -158,13 +152,15 @@ void GIP_Topo::sendrecv()
         if (recv_row[i+1]-recv_row[i] ) MPI_Wait(& rqr[i], &stat[1]);
     }
 
+    delete[] rqs;
+    delete[] rqr;
 }
 
 void GIP_Topo::sendrecv(double *send_buffer_t,double* recv_buffer_t)
 {
 
-    MPI_Request rqs[cols_size-1]; // request send
-    MPI_Request rqr[cols_size-1]; // request received 
+    MPI_Request *rqs = new MPI_Request[cols_size-1]; // request send
+    MPI_Request *rqr = new MPI_Request[cols_size-1]; // request received 
 
     int dim_send,dim_recv;
     for(int i=0;i<cols_size-1;i++)
@@ -181,7 +177,8 @@ void GIP_Topo::sendrecv(double *send_buffer_t,double* recv_buffer_t)
         if (send_row[i+1]-send_row[i] ) MPI_Wait(& rqs[i], &stat[0]);
         if (recv_row[i+1]-recv_row[i] ) MPI_Wait(& rqr[i], &stat[1]);
     }
-
+    delete[] rqs;
+    delete[] rqr;
 }
 
 
