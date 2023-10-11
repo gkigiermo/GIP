@@ -31,7 +31,7 @@ void GIP_VectorCuda::postConstruct(GIP_Topo* topo,GIP_Arch* _node)
     myArch=_node;
 }
 
-void GIP_VectorCuda::postConstruct(char * sfd_name,GIP_Topo* topo,GIP_Arch* _node)
+void GIP_VectorCuda::postConstruct(string sfd_name,GIP_Topo* topo,GIP_Arch* _node)
 {
     size=topo->getAllSize();
     vec=new double[size];
@@ -45,17 +45,10 @@ void GIP_VectorCuda::postConstruct(char * sfd_name,GIP_Topo* topo,GIP_Arch* _nod
     MPI_Comm_size(MPI_COMM_WORLD,&nz);
     FILE *fp;
 
-    fp= fopen(sfd_name,"rb");
+    fp= fopen(sfd_name.c_str(),"rb");
 
     int sizes[1];
-/*
-    for(int i=0;i<1;i++)
-        fscanf(fp," %d",&sizes[0]);
-    fscanf(fp," \n");
 
-    for(int i=0;i<size;i++)
-        fscanf(fp," %lf",&vec[i]);
- */
     fread(&sizes,sizeof(int),1,fp);
     fread(&vec[0],sizeof(double),sizes[0],fp);
 	
@@ -178,11 +171,9 @@ double GIP_VectorCuda::norm(GIP_Vector* temp,enum RUN_DOMAIN rdom)
             break;
         case _OWNED_:
             tnorm= GIP_gpuNormi(dvec,temp->getHostPtr(),temp->getDevicePtr(),myTopo->getOwnedSize(),myTopo->getBlocksOwned(),myTopo->getThreads());
- //           tdot= GIP_gpuNormi(myTopo->getOwnedSize(),dvec,x->getDevicePtr(),temp->getHostPtr(),temp->getDevicePtr(),myTopo->getBlocksOwned(),myTopo->getThreads());
             break;
         case _INNER_:
             tnorm= GIP_gpuNormi(dvec,temp->getHostPtr(),temp->getDevicePtr(),myTopo->getInnerSize(),myTopo->getBlocksInner(),myTopo->getThreads());
- //           tdot= GIP_gpuNormi(myTopo->getInnerSize(),dvec,x->getDevicePtr(),temp->getHostPtr(),temp->getDevicePtr(),myTopo->getBlocksInner(),myTopo->getThreads());
             break;
     };
 

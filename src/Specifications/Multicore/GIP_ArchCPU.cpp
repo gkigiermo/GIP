@@ -21,8 +21,7 @@ void GIP_ArchCPU::setUp()
 {
     omp_set_num_threads(num_cores);
 
-    //int cores=num_cores*num_cpus; //12;
-    int nthreads=num_cores;//6;
+    int nthreads=num_cores;
     omp_set_num_threads(nthreads);
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
@@ -43,8 +42,8 @@ void GIP_ArchCPU::setUp()
                     cout<<"TrySetAffinity: sched_getaffinity fail!"<<endl;
                 }
                 for(int i=0; i<cores; i++){
-                    if(i != id_th+ (cpu_id)*nthreads){SetBitListOffMacro(ptr, i);/* printf("0 ");*/}
-                    else{ SetBitListOnMacro(ptr, i);/* printf("1 ");*/}    
+                    if(i != id_th+ (cpu_id)*nthreads){SetBitListOffMacro(ptr, i);}
+                    else{ SetBitListOnMacro(ptr, i);}    
                 }
                 if(sched_setaffinity(0, sizeof(cpu_set_t), &mask_SYSTEM))
                 {

@@ -1,15 +1,13 @@
 #include "GIP_Topo.h"
 
-void GIP_Topo::postConstruct(char* filename)
+void GIP_Topo::postConstruct(string filename)
 {
     int rank,nz;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     MPI_Comm_size(MPI_COMM_WORLD,&nz);
 
-    //    char filename[100];
-    //    sprintf(filename,"topos/%s/%s_%dp/%s_%dp-%d.topo",matname,matname,nz,matname,nz,rank);
     FILE *fp;
-    fp= fopen(filename,"r");
+    fp= fopen(filename.c_str(),"r");
 
     int sizes[9];
     for(int i=0;i<9;i++)
@@ -33,13 +31,6 @@ void GIP_Topo::postConstruct(char* filename)
     recv_buffer= new double[recv_size];
     send_row= new int[cols_size];
     recv_row= new int[cols_size];
-    //vec=(double*)malloc(sizeof(double)*size);
-    //send_indx=(int*)malloc(sizeof(int)*send_size);
-    //send_buffer=(double*)malloc(sizeof(double)*send_size);
-    //recv_indx=(int*)malloc(sizeof(int)*recv_size);
-    //recv_buffer=(double*)malloc(sizeof(double)*recv_size);
-    //send_row=(int*)malloc(sizeof(int)*cols_size);
-    //recv_row=(int*)malloc(sizeof(int)*cols_size);
 
     for(int i=0;i<send_size;i++)
         fscanf(fp," %d",&send_indx[i]);

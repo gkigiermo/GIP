@@ -6,8 +6,8 @@
 class GIP_MatrixMulticore : public GIP_Matrix{
     public:
         GIP_MatrixMulticore(){};
-        GIP_MatrixMulticore(char* n,GIP_Arch*);
-        void postConstruct(char *n,GIP_Topo*,GIP_Arch*);
+        GIP_MatrixMulticore(char* name,GIP_Arch*);
+        void postConstruct(string name,GIP_Topo*,GIP_Arch*);
         
         void spmv(GIP_Vector*,GIP_Vector*);
         void spmv(GIP_Vector*,GIP_Vector*,double,double);

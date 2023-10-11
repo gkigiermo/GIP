@@ -1,6 +1,6 @@
 #include "GIP_MatrixCuda.h"
 
-GIP_MatrixCuda::GIP_MatrixCuda(char* n,GIP_Arch* _architecture): GIP_Matrix(n,_architecture) {
+GIP_MatrixCuda::GIP_MatrixCuda(char* name,GIP_Arch* _architecture): GIP_Matrix(name,_architecture) {
 	GIP_cudaMallocDouble(dcsrValA,nnz);
 	GIP_cudaMallocInt(dcsrColIndA,nnz);
 	GIP_cudaMallocInt(dcsrRowIndA,num_rows+1);
@@ -11,14 +11,14 @@ GIP_MatrixCuda::GIP_MatrixCuda(char* n,GIP_Arch* _architecture): GIP_Matrix(n,_a
 	blocks=(num_rows+(threads-1))/threads;
 }
 
-void GIP_MatrixCuda::postConstruct(char *matrix_name,GIP_Topo* _topo,GIP_Arch* _architecture)
+void GIP_MatrixCuda::postConstruct(string matrix_name,GIP_Topo* _topo,GIP_Arch* _architecture)
 {
 	int rank,nz;
 	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
 	MPI_Comm_size(MPI_COMM_WORLD,&nz);
 	FILE *fp;
 
-	fp= fopen(matrix_name,"rb");
+	fp= fopen(matrix_name.c_str(),"rb");
 
 	int sizes[5];
 
@@ -37,33 +37,6 @@ void GIP_MatrixCuda::postConstruct(char *matrix_name,GIP_Topo* _topo,GIP_Arch* _
 
 	fclose(fp);
 
-	/*
-	   for(int i=0;i<5;i++)
-	   fscanf(fp," %d",&sizes[i]);
-	   fscanf(fp," \n");
-
-	   nnz=sizes[0];
-	   num_cols=sizes[1];
-	   num_rows=sizes[2];
-
-	   csrValA=new double[nnz];
-	   csrColIndA=new int[nnz];
-	   csrRowIndA= new int[num_rows+1];
-
-
-	   for(int i=0;i<nnz;i++)
-	   fscanf(fp," %lf",&csrValA[i]);
-	   fscanf(fp," \n");
-	   for(int i=0;i<nnz;i++)
-	   fscanf(fp," %d",&csrColIndA[i]);
-	   fscanf(fp," \n");
-	   for(int i=0;i<num_rows+1;i++)
-	   fscanf(fp," %d",&csrRowIndA[i]);
-	   fscanf(fp," \n");
-
-	   fclose(fp);
-
-	 */
 	GIP_cudaMallocDouble(dcsrValA,nnz);
 	GIP_cudaMallocInt(dcsrColIndA,nnz);
 	GIP_cudaMallocInt(dcsrRowIndA,num_rows+1);
@@ -128,11 +101,6 @@ void GIP_MatrixCuda::spmv(GIP_Vector* x, GIP_Matrix* Ab,double alpha,double beta
 
 void GIP_MatrixCuda::operator=(GIP_Matrix& matrix)
 {
-
-//    nnz= matrix.nnz;
-//    num_rows=matrix.num_rows;
-//    num_cols=matrix.num_cols;
-
     num_rows=matrix.getNumRows();
     num_cols=matrix.getNumCols();
     nnz=     matrix.getNumNnz();

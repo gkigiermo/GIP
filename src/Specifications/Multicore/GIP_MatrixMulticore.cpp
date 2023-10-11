@@ -1,15 +1,15 @@
 #include "GIP_MatrixMulticore.h"
 
-GIP_MatrixMulticore::GIP_MatrixMulticore(char* n,GIP_Arch* _architecture): GIP_Matrix(n,_architecture) {}
+GIP_MatrixMulticore::GIP_MatrixMulticore(char* name,GIP_Arch* _architecture): GIP_Matrix(name,_architecture) {}
 
-void GIP_MatrixMulticore::postConstruct(char *matrix_name,GIP_Topo* _topo,GIP_Arch* _architecture)
+void GIP_MatrixMulticore::postConstruct(string matrix_name,GIP_Topo* _topo,GIP_Arch* _architecture)
 {
     int rank,nz;
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     MPI_Comm_size(MPI_COMM_WORLD,&nz);
     FILE *fp;
-
-    fp= fopen(matrix_name,"rb");
+    
+    fp= fopen(matrix_name.c_str(),"rb");
     int sizes[5];
     fread(&sizes,sizeof(int),5,fp);
     nnz=sizes[0];
@@ -25,32 +25,7 @@ void GIP_MatrixMulticore::postConstruct(char *matrix_name,GIP_Topo* _topo,GIP_Ar
     fread(csrRowIndA,sizeof(int),num_rows+1,fp);
 
     fclose(fp);
-    /*
-       for(int i=0;i<5;i++)
-       fscanf(fp," %d",&sizes[i]);
-       fscanf(fp," \n");
 
-       nnz=sizes[0];
-       num_cols=sizes[1];
-       num_rows=sizes[2];
-
-       csrValA=new double[nnz];
-       csrColIndA=new int[nnz];
-       csrRowIndA= new int[num_rows+1];
-
-
-       for(int i=0;i<nnz;i++)
-       fscanf(fp," %lf",&csrValA[i]);
-       fscanf(fp," \n");
-       for(int i=0;i<nnz;i++)
-       fscanf(fp," %d",&csrColIndA[i]);
-       fscanf(fp," \n");
-       for(int i=0;i<num_rows+1;i++)
-       fscanf(fp," %d",&csrRowIndA[i]);
-       fscanf(fp," \n");
-
-       fclose(fp);
-     */ 
     myTopo=_topo;
     myArch=_architecture;
 }

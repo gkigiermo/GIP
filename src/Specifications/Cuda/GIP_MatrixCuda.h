@@ -7,8 +7,8 @@
 class GIP_MatrixCuda : public GIP_Matrix{
     public:
         GIP_MatrixCuda(){};
-        GIP_MatrixCuda(char* n,GIP_Arch*);
-        void postConstruct(char *n,GIP_Topo*,GIP_Arch*);
+        GIP_MatrixCuda(char* name,GIP_Arch*);
+        void postConstruct(string name,GIP_Topo*,GIP_Arch*);
 
         void spmv(GIP_Vector*,GIP_Vector*);
         void spmv(GIP_Vector*,GIP_Vector*,double,double);

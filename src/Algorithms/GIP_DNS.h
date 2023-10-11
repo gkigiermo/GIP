@@ -3,6 +3,7 @@
 
 #include<stdio.h>
 #include<iostream>
+#include<string>
 #include<mpi.h>
 #include "GIP_LinearSolver.h"
 #include "../BasicInterfaces/GIP_Topo.h"
@@ -10,10 +11,7 @@
 using namespace std;
 
 template<class Matrix,class Vector,class Node,class NonLinear> class GIP_DNS{
-
-
     public:
-
         GIP_DNS(){};
         GIP_DNS(char* name);
         ~GIP_DNS(){};
@@ -23,8 +21,7 @@ template<class Matrix,class Vector,class Node,class NonLinear> class GIP_DNS{
 
     private:
 
-        char name[100]; 
-
+        string name;
         Node nodo;
 
         //Convection - Diffusion 
@@ -64,7 +61,6 @@ template<class Matrix,class Vector,class Node,class NonLinear> class GIP_DNS{
         Vector temp;
         Vector temp2;
 
-
         // Linear Solver
         GIP_LinearSolver<Matrix,Vector> cg;
 
@@ -73,7 +69,6 @@ template<class Matrix,class Vector,class Node,class NonLinear> class GIP_DNS{
         GIP_Topo topoFaces;
     
         NonLinear noLin;
-
 
         // Parameters
         double Re;
@@ -85,7 +80,6 @@ template<class Matrix,class Vector,class Node,class NonLinear> class GIP_DNS{
         int    maxIt;
         int    it;
 
-        // Private methods
         void uploadTopos();  
         void uploadConvDiff(); 
         void uploadPoisson(); 
@@ -118,7 +112,6 @@ void GIP_DNS<Matrix,Vector,Node,NonLinear>::integrate()
 
 }
 
-
 template<class Matrix, class Vector,class Node,class NonLinear>
 void GIP_DNS<Matrix,Vector,Node,NonLinear>::setUp() 
 {
@@ -143,11 +136,8 @@ GIP_DNS<Matrix,Vector,Node,NonLinear>::GIP_DNS(char* _name):nodo(1,4,4),noLin(),
         Re=1.0e3;
         gamma=1.0/Re;
         time=0.0;
-        sprintf(name,"%s",_name);
+        name = _name;
     }
-
-
-
 
 template<class Matrix, class Vector,class Node,class NonLinear>
 void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadConvDiff() 
@@ -156,17 +146,14 @@ void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadConvDiff()
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     MPI_Comm_size(MPI_COMM_WORLD,&nz);
 
-    char Dname[100];
-    sprintf(Dname,"../InputFiles/Operators/CD/%s/%s_%dp/D%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    D.postConstruct(&Dname[0],&topoCols,&nodo);
-    C.postConstruct(&Dname[0],&topoCols,&nodo);
+    string Dname = "InputFiles/Operators/CD/"+ name + "/" + name + "_" + to_string(nz) + "p/D"+name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    D.postConstruct(Dname,&topoCols,&nodo);
+    C.postConstruct(Dname,&topoCols,&nodo);
 
-    char Ecname[100];
-    sprintf(Ecname,"../InputFiles/Operators/CD/%s/%s_%dp/Ec%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    Ec.postConstruct(&Ecname[0],&topoFaces,&nodo);
+    string Ecname = "InputFiles/Operators/CD/"+ name + "/" + name + "_" + to_string(nz) + "p/Ec" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    Ec.postConstruct(Ecname,&topoFaces,&nodo);
 
 }
-
 
 template<class Matrix, class Vector,class Node,class NonLinear>
 void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadPoisson() 
@@ -175,26 +162,20 @@ void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadPoisson()
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     MPI_Comm_size(MPI_COMM_WORLD,&nz);
 
-    char Lname[100];
-    sprintf(Lname,"InputFiles/Operators/L/%s/%s_%dp/L%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    L.postConstruct(&Lname[0],&topoCols,&nodo);
+    string Lname = "InputFiles/Operators/L/"+ name + "/" + name + "_" + to_string(nz) + "p/L" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    L.postConstruct(Lname,&topoCols,&nodo);
+    
+    string Lbname = "InputFiles/Operators/L/"+ name + "/" + name + "_" + to_string(nz) + "p/Lb" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    Lb.postConstruct(Lbname,&topoCols,&nodo);
 
-    char Lbname[100];
-    sprintf(Lbname,"InputFiles/Operators/L/%s/%s_%dp/Lb%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    Lb.postConstruct(&Lbname[0],&topoCols,&nodo);
+    string Mxname = "InputFiles/Operators/M/"+ name + "/" + name + "_" + to_string(nz) + "p/Mx" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    Mx.postConstruct(Mxname,&topoCols,&nodo);
 
-    char Mxname[100];
-    sprintf(Mxname,"InputFiles/Operators/M/%s/%s_%dp/Mx%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    Mx.postConstruct(&Mxname[0],&topoCols,&nodo);
+    string Myname = "InputFiles/Operators/M/"+ name + "/" + name + "_" + to_string(nz) + "p/My" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    My.postConstruct(Myname,&topoCols,&nodo);
 
-    char Myname[100];
-    sprintf(Myname,"InputFiles/Operators/M/%s/%s_%dp/My%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    My.postConstruct(&Myname[0],&topoCols,&nodo);
-
-    char Mzname[100];
-    sprintf(Mzname,"InputFiles/Operators/M/%s/%s_%dp/Mz%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    Mz.postConstruct(&Mzname[0],&topoCols,&nodo);
-
+    string Mzname = "InputFiles/Operators/M/"+ name + "/" + name + "_" + to_string(nz) + "p/Mz" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    Mz.postConstruct(Mzname,&topoCols,&nodo);
 
     GIP_Parameters param;
     param.setDouble("tol",1e-10);
@@ -205,7 +186,6 @@ void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadPoisson()
 
 }
 
-
 template<class Matrix, class Vector,class Node,class NonLinear>
 void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadGradients() 
 {
@@ -213,21 +193,16 @@ void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadGradients()
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     MPI_Comm_size(MPI_COMM_WORLD,&nz);
 
+    string Gxname = "InputFiles/Operators/G/"+ name + "/" + name + "_" + to_string(nz) + "p/Gx" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    Gx.postConstruct(Gxname,&topoCols,&nodo);
 
-    char Gxname[100];
-    sprintf(Gxname,"InputFiles/Operators/G/%s/%s_%dp/Gx%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    Gx.postConstruct(&Gxname[0],&topoCols,&nodo);
+    string Gyname = "InputFiles/Operators/G/"+ name + "/" + name + "_" + to_string(nz) + "p/Gy" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    Gy.postConstruct(Gyname,&topoCols,&nodo);
 
-    char Gyname[100];
-    sprintf(Gyname,"InputFiles/Operators/G/%s/%s_%dp/Gy%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    Gy.postConstruct(&Gyname[0],&topoCols,&nodo);
-
-    char Gzname[100];
-    sprintf(Gzname,"InputFiles/Operators/G/%s/%s_%dp/Gz%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    Gz.postConstruct(&Gzname[0],&topoCols,&nodo);
+    string Gzname = "InputFiles/Operators/G/"+ name + "/" + name + "_" + to_string(nz) + "p/Gz" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    Gz.postConstruct(Gzname,&topoCols,&nodo);
 
 }
-
 
 template<class Matrix, class Vector,class Node,class NonLinear>
 void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadMassCorrection() 
@@ -236,21 +211,17 @@ void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadMassCorrection()
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     MPI_Comm_size(MPI_COMM_WORLD,&nz);
 
-    char SFxname[100];
-    sprintf(SFxname,"InputFiles/Operators/S/%s/%s_%dp/SFx%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    SFx.postConstruct(&SFxname[0],&topoFaces,&nodo);
+    string SFxname = "InputFiles/Operators/S/"+ name + "/" + name + "_" + to_string(nz) + "p/SFx" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    SFx.postConstruct(SFxname,&topoFaces,&nodo);
 
-    char SFyname[100];
-    sprintf(SFyname,"InputFiles/Operators/S/%s/%s_%dp/SFy%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    SFy.postConstruct(&SFyname[0],&topoFaces,&nodo);
+    string SFyname = "InputFiles/Operators/S/"+ name + "/" + name + "_" + to_string(nz) + "p/SFy" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    SFy.postConstruct(SFyname,&topoFaces,&nodo);
 
-    char SFzname[100];
-    sprintf(SFzname,"InputFiles/Operators/S/%s/%s_%dp/SFz%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    SFz.postConstruct(&SFzname[0],&topoFaces,&nodo);
+    string SFzname = "InputFiles/Operators/S/"+ name + "/" + name + "_" + to_string(nz) + "p/SFz" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    SFz.postConstruct(SFzname,&topoFaces,&nodo);
 
-    char SOname[100];
-    sprintf(SOname,"InputFiles/Operators/S/%s/%s_%dp/SO%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    SO.postConstruct(&SOname[0],&topoFaces,&nodo);
+    string SOname = "InputFiles/Operators/S/"+ name + "/" + name + "_" + to_string(nz) + "p/SO" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    SO.postConstruct(SOname,&topoFaces,&nodo);
 
 }
 
@@ -261,11 +232,11 @@ void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadCFL()
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     MPI_Comm_size(MPI_COMM_WORLD,&nz);
 
-    char Mresname[100];
-    sprintf(Mresname,"InputFiles/Operators/M/%s/%s_%dp/Mres%s_%dp-%d.csr",name,name,nz,name,nz,rank);
-    Mres.postConstruct(&Mresname[0],&topoCols,&nodo);
+    string Mresname = "InputFiles/Operators/M/"+ name + "/" + name + "_" + to_string(nz) + "p/Mres" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".csr"; 
+    Mres.postConstruct(Mresname,&topoCols,&nodo);
 
 }
+
 template<class Matrix, class Vector,class Node,class NonLinear>
 void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadTopos() 
 {
@@ -273,13 +244,12 @@ void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadTopos()
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     MPI_Comm_size(MPI_COMM_WORLD,&nz);
 
-    char Tname[100];
     char Vecname[100];
-    sprintf(Tname,"InputFiles/Topos/%s/%s_%dp/topoCols%s_%dp-%d.topo",name,name,nz,name,nz,rank);
-    topoCols.postConstruct(&Tname[0]);
+    string Tname = "InputFiles/Topos/"+ name + "/" + name + "_" + to_string(nz) + "p/topoCols" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".topo"; 
+    topoCols.postConstruct(Tname);
 
-    sprintf(Tname,"InputFiles/Topos/%s/%s_%dp/topoFaces%s_%dp-%d.topo",name,name,nz,name,nz,rank);
-    topoFaces.postConstruct(&Tname[0]);
+    string Fname = "InputFiles/Topos/"+ name + "/" + name + "_" + to_string(nz) + "p/topoFaces" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".topo"; 
+    topoFaces.postConstruct(Fname);
 
     nodo.setUp();
 
@@ -300,20 +270,20 @@ void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadTopos()
     temp2.postConstruct(&topoCols,&nodo);
     mf.postConstruct(&topoFaces,&nodo);
 
-    sprintf(Vecname,"InputFiles/Scalarfields/%s/%s_%dp/u%s_%dp-%d.vec",name,name,nz,name,nz,rank);
-    u.postConstruct(Vecname,&topoCols,&nodo);
-    u0.postConstruct(Vecname,&topoCols,&nodo);
+    string VecUname = "InputFiles/Scalarfields/"+ name + "/" + name + "_" + to_string(nz) + "p/u" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".vec"; 
+    u.postConstruct(VecUname,&topoCols,&nodo);
+    u0.postConstruct(VecUname,&topoCols,&nodo);
 
-    sprintf(Vecname,"InputFiles/Scalarfields/%s/%s_%dp/v%s_%dp-%d.vec",name,name,nz,name,nz,rank);
-    v.postConstruct(Vecname,&topoCols,&nodo);
-    v0.postConstruct(Vecname,&topoCols,&nodo);
+    string VecVname = "InputFiles/Scalarfields/"+ name + "/" + name + "_" + to_string(nz) + "p/v" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".vec"; 
+    v.postConstruct(VecVname,&topoCols,&nodo);
+    v0.postConstruct(VecVname,&topoCols,&nodo);
 
-    sprintf(Vecname,"InputFiles/Scalarfields/%s/%s_%dp/w%s_%dp-%d.vec",name,name,nz,name,nz,rank);
-    w.postConstruct(Vecname,&topoCols,&nodo);
-    w0.postConstruct(Vecname,&topoCols,&nodo);
+    string VecWname = "InputFiles/Scalarfields/"+ name + "/" + name + "_" + to_string(nz) + "p/w" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".vec"; 
+    w.postConstruct(VecWname,&topoCols,&nodo);
+    w0.postConstruct(VecWname,&topoCols,&nodo);
 
-    sprintf(Vecname,"InputFiles/Scalarfields/%s/%s_%dp/dxs%s_%dp-%d.vec",name,name,nz,name,nz,rank);
-    dxs.postConstruct(Vecname,&topoCols,&nodo);
+    string VecDxname = "InputFiles/Scalarfields/"+ name + "/" + name + "_" + to_string(nz) + "p/dxs" + name + "_" + to_string(nz) + "p-" + to_string(rank) + ".vec"; 
+    dxs.postConstruct(VecDxname,&topoCols,&nodo);
 
     ax=0;
     ay=0;
@@ -334,7 +304,6 @@ void GIP_DNS<Matrix,Vector,Node,NonLinear>::uploadTopos()
     cout.setf(ios::scientific,ios::floatfield);
 
    }
-
 
 template<class Matrix, class Vector,class Node,class NonLinear>
 void GIP_DNS<Matrix,Vector,Node,NonLinear>::PredictorVelocity()
@@ -367,6 +336,7 @@ void GIP_DNS<Matrix,Vector,Node,NonLinear>::PredictorVelocity()
     az.copyTo(&az0,_INNER_);
 
 }
+
 template<class Matrix, class Vector,class Node,class NonLinear>
 void GIP_DNS<Matrix,Vector,Node,NonLinear>::PoissonEquation() 
 {
@@ -401,8 +371,7 @@ void GIP_DNS<Matrix,Vector,Node,NonLinear>::VelocityCorrection()
 
     u.update();
     v.update();
-    w.update();
-    
+    w.update(); 
    
 }
 

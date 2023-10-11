@@ -20,9 +20,6 @@
 #include <mpi.h>
 #include <omp.h>
 
-
-//using namespace std;
-
 class GIP_ArchCPU: public GIP_Arch{
 
     public:

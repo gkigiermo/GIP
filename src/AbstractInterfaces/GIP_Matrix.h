@@ -12,10 +12,9 @@ class GIP_Matrix {
 
     public:
         GIP_Matrix(){};      
-        //GIP_Matrix(double* csrValA, int* csrColIndA, csrRowIndA,rows,cols,nnz) Link TF
         GIP_Matrix(char*&,GIP_Arch*);  // Read from a File in CSR
         virtual ~GIP_Matrix(); 
-        virtual void postConstruct(char* &,GIP_Topo*,GIP_Arch*){};
+        virtual void postConstruct(string name, GIP_Topo*, GIP_Arch*){};
 
 
         virtual void spmv(GIP_Vector*,GIP_Vector*);         // SpMV basic    y=Ax  
@@ -28,12 +27,12 @@ class GIP_Matrix {
 
 
         virtual double* getCsrValADevice(){return NULL;};
-        int getNumNnz(){return nnz;}; //temporal solo para pruebas
-        int getNumRows(){return num_rows;}; //temporal solo para pruebas
-        int getNumCols(){return num_cols;}; //temporal solo para pruebas
-        double* getCsrValA(){return csrValA;}; //temporal solo para pruebas
-        int* getCsrColIndA(){return csrColIndA;}; //temporal solo para pruebas
-        int* getCsrRowIndA(){return csrRowIndA;}; //temporal solo para pruebas
+        int getNumNnz(){return nnz;}; 
+        int getNumRows(){return num_rows;};
+        int getNumCols(){return num_cols;}; 
+        double* getCsrValA(){return csrValA;};
+        int* getCsrColIndA(){return csrColIndA;}; 
+        int* getCsrRowIndA(){return csrRowIndA;}; 
         GIP_Topo* getMyTopo();
         GIP_Arch* getMyArch();
         

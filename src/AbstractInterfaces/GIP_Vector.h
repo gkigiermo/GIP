@@ -8,7 +8,6 @@
 #include "../BasicInterfaces/GIP_Topo.h"
 #include "../AbstractInterfaces/GIP_Arch.h"
 
-
 using namespace std;
 
 class GIP_Vector{
@@ -20,7 +19,7 @@ class GIP_Vector{
         virtual ~GIP_Vector();
  
         virtual void postConstruct(GIP_Topo*,GIP_Arch*){};
-        virtual void postConstruct(char* &,GIP_Topo*,GIP_Arch*){};
+        virtual void postConstruct(string name,GIP_Topo*,GIP_Arch*){};
  
         //operadores
         virtual void operator=(double);
@@ -54,15 +53,3 @@ class GIP_Vector{
 };
 
 #endif
-
-//constructures
-// - defecto
-// - copia
-// post construct
-// operadores =
-// gets sets
-// otros
-// operaciones 
-// mariconadas
-//desctructores
-

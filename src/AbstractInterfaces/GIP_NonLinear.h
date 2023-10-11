@@ -2,8 +2,6 @@
 #define _gip_nlinear_
 
 #include "GIP_Vector.h"
-//#include"../BasicInterfaces/GIP_Topo.h"
-
 
 class GIP_NonLinear{
 

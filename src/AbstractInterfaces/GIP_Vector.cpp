@@ -67,6 +67,4 @@ void GIP_Vector::printPlainFile(char * opname)
 
     fclose(fp);
 
-
-
 }

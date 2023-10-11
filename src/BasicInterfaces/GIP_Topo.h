@@ -5,7 +5,7 @@
 #include<iostream>
 #include<mpi.h>
 
-/* Orden de los elementos en la clase Topo     
+/* Elements within class Topo     
       _____________________________
      |       |          | INTERIOR |
      |       |  INNER   |__________|
@@ -26,7 +26,6 @@ enum RUN_DOMAIN{
     _BOUND_  // BOUNDARIES
 };
 
-
 using namespace std;
 
 class GIP_Topo{
@@ -42,7 +41,6 @@ class GIP_Topo{
         int boundaries;
         int halos;
 
-        // Para comm;
         int send_size;
         int recv_size;
         int cols_size;
@@ -53,17 +51,12 @@ class GIP_Topo{
         int *recv_indx;
         int *recv_row;
 
-
-        ///////////////////////////////////
-        //Estos variables deben ser redistribuidas en el vector
         double *send_buffer;
         double *recv_buffer;
         void pack(double *&);
         void unpack(double *&);
-        void sendrecv(); // Prontamente tendra que ser eliminado para no basarse en ningun supuesto
-        //////////////////////////////////
+        void sendrecv(); 
         
-
         int threads;
         int blocks_owned;
         int blocks_all;
@@ -72,7 +65,7 @@ class GIP_Topo{
     public:
         GIP_Topo(){};
         ~GIP_Topo();
-        void postConstruct(char*);
+        void postConstruct(string name);
         void update(double*); 
         int  getAllSize();
         int getOwnedSize();
@@ -89,16 +82,12 @@ class GIP_Topo{
         int * getRecvIndx(){return recv_indx;};
         int * getRecvRow(){return recv_row;};
 
-        void sendrecv(double*,double*); //Este es el procedimiento final
+        void sendrecv(double*,double*); 
 
-
-
-        // Esto deberia ir a una clase con info de la arquitectura
         int getThreads();
         int getBlocksAll();
         int getBlocksOwned();
         int getBlocksInner();
-        ////////////////////////////////////////
 
         void printTopoInfo();
 };

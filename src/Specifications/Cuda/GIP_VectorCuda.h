@@ -11,7 +11,7 @@ class GIP_VectorCuda : public GIP_Vector{
         ~GIP_VectorCuda();
 
         void postConstruct(GIP_Topo*,GIP_Arch*);
-        void postConstruct(char *,GIP_Topo*,GIP_Arch*);
+        void postConstruct(string name,GIP_Topo*,GIP_Arch*);
 
 
         void axpy(GIP_Vector*, double,enum RUN_DOMAIN);

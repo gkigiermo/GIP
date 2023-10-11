@@ -49,7 +49,7 @@ void GIP_Parameters::setString(const string& key,const string& value){
 }
 
 ostream &operator<<(ostream & qout, const GIP_Parameters& p){
-    qout<<"   INICI PARAMETERS "<<p.name<<endl<<endl;
+    qout<<"   START PARAMETERS "<<p.name<<endl<<endl;
     qout<<"    -Booleans:"<<endl;
     for(map<string,bool>::const_iterator i=p.bools.begin(); i!=p.bools.end(); ++i)
         qout<<"     "<<i->first<<": "<<i->second<<endl;
@@ -62,6 +62,6 @@ ostream &operator<<(ostream & qout, const GIP_Parameters& p){
     qout<<endl<<"    -Strings:"<<endl;
     for(map<string,string>::const_iterator i=p.strings.begin(); i!=p.strings.end(); ++i)
         qout<<"     "<<i->first<<": "<<i->second<<endl; 
-    qout<<endl<<"   FI PARAMETERS"<<endl;
+    qout<<endl<<"   END PARAMETERS"<<endl;
     return qout;
 }

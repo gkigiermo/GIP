@@ -1,8 +1,5 @@
-//#cabecera de las funciones de GPU 
 #include "cuda.h"
 #include "cuda_runtime.h"
-
-
 
 extern "C++" void GIP_cudaMallocDouble(double* &,int );
 

@@ -13,7 +13,7 @@ void GIP_VectorMulticore::postConstruct(GIP_Topo* topo,GIP_Arch* _architecture)
     myArch=_architecture;
 }
 
-void GIP_VectorMulticore::postConstruct(char* sfd_name,GIP_Topo* topo,GIP_Arch* _architecture)
+void GIP_VectorMulticore::postConstruct(string sfd_name,GIP_Topo* topo,GIP_Arch* _architecture)
 {
 
     size=topo->getAllSize();
@@ -25,7 +25,7 @@ void GIP_VectorMulticore::postConstruct(char* sfd_name,GIP_Topo* topo,GIP_Arch* 
     MPI_Comm_rank(MPI_COMM_WORLD,&rank);
     MPI_Comm_size(MPI_COMM_WORLD,&nz);
     FILE *fp;
-    fp= fopen(sfd_name,"rb");
+    fp= fopen(sfd_name.c_str(),"rb");
     if (fp == NULL) {
     
         cout<<" Error opening scalarfield file "<<sfd_name<<endl;
@@ -37,14 +37,6 @@ void GIP_VectorMulticore::postConstruct(char* sfd_name,GIP_Topo* topo,GIP_Arch* 
   
     fread(vec,sizeof(double),tam,fp);
     
-/*
-    for(int i=0;i<1;i++)
-        fscanf(fp," %d",&sizes[0]);
-    fscanf(fp," \n");
-
-    for(int i=0;i<size;i++)
-        fscanf(fp," %lf",&vec[i]);
- */
     fclose(fp);
  
 }

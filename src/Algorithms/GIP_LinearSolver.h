@@ -28,8 +28,6 @@ template<class Matrix,class Vector> class GIP_LinearSolver{
         GIP_Arch* myNode;
 };
 
-
-
 template<class Matrix, class Vector>
 void GIP_LinearSolver<Matrix,Vector>::setUp(Matrix* _A,GIP_Parameters* param)
 {
@@ -42,6 +40,7 @@ void GIP_LinearSolver<Matrix,Vector>::setUp(Matrix* _A,GIP_Parameters* param)
     diagonal.setUpDiagonal(_A);
     myNode=_A->getMyArch(); 
 }
+
 template<class Matrix, class Vector>
 void GIP_LinearSolver<Matrix,Vector>::solve(Vector* db, Vector* dx, Vector* dx0)
 {
@@ -115,9 +114,6 @@ void GIP_LinearSolver<Matrix,Vector>::solve(Vector* db, Vector* dx, Vector* dx0)
 
         k++;
     }
-
-
-
 }
 
 template<class Matrix,class Vector>
@@ -135,4 +131,5 @@ double GIP_LinearSolver<Matrix,Vector>::calcResid(Vector* dx,Vector* db)
 
     return(sqrt(res));
 }
+
 #endif

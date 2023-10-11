@@ -6,11 +6,9 @@ double GIP_NonLinearMulticore::getCFL(GIP_Topo* myTopo,GIP_Vector* u,GIP_Vector*
    
     dt=1e20;
     double convCoef=0.25;
-    //double difCoef=0.2;
     double ut,vt,wt,dx;
     double normit=0.0;
     double* uptr,*vptr,*wptr,*tptr,*dxsptr;
-    //double limite=1e-17;
     
     uptr=u->getHostPtr();
     vptr=v->getHostPtr();

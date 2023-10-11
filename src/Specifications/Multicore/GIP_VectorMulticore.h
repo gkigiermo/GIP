@@ -10,7 +10,7 @@ class GIP_VectorMulticore : public GIP_Vector{
         ~GIP_VectorMulticore();
 
         void postConstruct(GIP_Topo*,GIP_Arch*);
-        void postConstruct(char *n,GIP_Topo*,GIP_Arch*);
+        void postConstruct(string name,GIP_Topo*,GIP_Arch*);
 
         void TransferToDevice(enum RUN_DOMAIN){};
         void TransferToHost(enum RUN_DOMAIN){};

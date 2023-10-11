@@ -1,8 +1,6 @@
 #ifndef _gip_timer_
 #define _gip_timer_
 
-//#include <sys/time.h>
-//#include <sys/times.h>
 #include <mpi.h>
 
 class GIP_Timer{
