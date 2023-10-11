@@ -14,6 +14,6 @@ mpic++ -c src/AbstractInterfaces/GIP_Arch.cpp -fopenmp
 mpic++ -c src/Specifications/Cuda/GIP_ArchGPU.cpp -fopenmp $INC
 mpic++ -c src/AbstractInterfaces/GIP_NonLinear.cpp -fopenmp
 mpic++ -c src/Specifications/Cuda/GIP_NonLinearCuda.cpp -fopenmp  $INC
-mpic++ -c DrivenCavity.cpp  -fopenmp $INC
+mpic++ -c DrivenCavity.cpp  -fopenmp $INC -DENABLE_GPU=1
 mpic++ DrivenCavity.o GIP_NonLinearCuda.o GIP_NonLinear.o GIP_ArchGPU.o GIP_Arch.o GIP_Parameters.o GIP_TimerCuda.o GIP_Timer.o GIP_MatrixCuda.o GIP_Matrix.o GIP_VectorCuda.o GIP_Vector.o GIP_Topo.o -L./src/Specifications/Cuda/Libs -lgpu $INCLIB -lcudart  -o DrivenCavityGPU -fopenmp $INC
 rm *.o

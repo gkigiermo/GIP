@@ -1,20 +1,20 @@
 #include<stdio.h>
 #include<iostream>
 #include "src/Algorithms/GIP_DNS.h"
-#define _cpu_  0
 
-#if _cpu_ 
-    #include "src/Specifications/Multicore/Multicore.h"
-    typedef GIP_MatrixMulticore Matrix;
-    typedef GIP_VectorMulticore Vector;
-    typedef GIP_NonLinearMulticore NonLinear;
-    typedef GIP_ArchCPU Architecture;
-#else
+#if ENABLE_GPU 
     #include "src/Specifications/Cuda/Cuda.h"
     typedef GIP_MatrixCuda Matrix;
     typedef GIP_VectorCuda Vector;
     typedef GIP_NonLinearCuda NonLinear;
     typedef GIP_ArchGPU Architecture;
+#else
+    #include "src/Specifications/Multicore/Multicore.h"
+    typedef GIP_MatrixMulticore Matrix;
+    typedef GIP_VectorMulticore Vector;
+    typedef GIP_NonLinearMulticore NonLinear;
+    typedef GIP_ArchCPU Architecture;
+
 #endif
 
 using namespace std;
